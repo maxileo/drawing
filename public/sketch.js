@@ -5,7 +5,7 @@ function setup()
     createCanvas(900, 900);
     background(200);
 
-    socket=io.connect('http://localhost:3000');
+    socket=io.connect();
     socket.on('mouse', newDrawing);
 }
 function newDrawing(data)
