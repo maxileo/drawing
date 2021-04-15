@@ -1,19 +1,15 @@
-var express = require('express');
+const express = require('express');
+const socketIO = require('socket.io');
 
-var app=express();
+const port=process.env.PORT || 3000;
 
-const port=process.env.port || 3000;
-var server=app.listen(port);
+const server = express()
+    .use((req, res) => res.sendFile('public'))
+    .listen(port, ()=> console.log('Listening'));
 
+const io =socketIO(server);
 
-app.use(express.static('public'));
-
-console.log("Hello there");
-
-var socket = require('socket.io');
-
-var io=socket(server);
-io.sockets.on('connection', newConnection);
+io.on('connection', newConnection);
 
 function newConnection(socket)
 {
