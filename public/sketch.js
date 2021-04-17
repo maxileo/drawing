@@ -149,14 +149,17 @@ var timerr;
 function timer()
 {
     timeIsDone=false;
-    var minut=new Date().getTime()+90000;
+    var minut=new Date().getTime()+60000+30000;
     timerr=setInterval(function(){
         var acum=new Date().getTime();
         var timptrecut=minut - acum;
+        var minute = Math.floor((timptrecut % (1000 * 60 * 60)) / (1000 * 60));
         var secunde = Math.floor((timptrecut % (1000 * 60)) / 1000);
         if (timptrecut>0)
         {
-            document.getElementById('timer').textContent=secunde;
+            if (minute<=0)
+                minute=0;
+            document.getElementById('timer').textContent=minute+" m"+" "+secunde+" s";
         }
         else
         {
