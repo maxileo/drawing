@@ -17,7 +17,18 @@ function newConnection(socket)
 
     socket.on('mouse', mouseMsg);
     socket.on('reset', resetIt);
+    socket.on('guess', guess);
+    socket.on('guessed', guessed);
 
+    function guessed()
+    {
+        socket.broadcast.emit('guessedIt');
+    }
+    function guess(data)
+    {
+        socket.broadcast.emit('guess', data);
+        console.log(data);
+    }
     function resetIt(data)
     {
         socket.broadcast.emit('resetIt', data);

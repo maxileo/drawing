@@ -2,15 +2,25 @@
 <html lang="en">
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/addons/p5.sound.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset="utf-8" />
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js" integrity="sha384-DkkWv9oJFWLIydBXXjkBWnG1/fuVhw8YPBq37uvvD6WSYRFRqr21eY5Dg9ZhmWdy" crossorigin="anonymous"></script>
 
 
   </head>
   <body>
+      <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+      </form>
+      <div id="timer"></div>
+      <pre id="info"></pre>
       <button id="reset">RESET</button>
+      <button id="choose">CHOOSE A WORD</button>
       <script src="sketch.js"></script>
+
+      <style>
+        #info{
+          font-size: 30px;
+        }
+      </style>
   </body>
 </html>
