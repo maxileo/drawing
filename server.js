@@ -16,10 +16,21 @@ function newConnection(socket)
     console.log("new connection: " + socket.id);
 
     socket.on('mouse', mouseMsg);
+    socket.on('reset', resetIt);
+
+    function resetIt(data)
+    {
+        socket.broadcast.emit('resetIt', data);
+        console.log(data);
+    }
 
     function mouseMsg(data)
     {
         socket.broadcast.emit('mouse', data);
         console.log(data);
     }
+
+    socket.on('disconnect', ()=>{
+        console.log("user disconnected: " + socket.id);
+    });
 }
