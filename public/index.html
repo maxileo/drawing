@@ -4,23 +4,85 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.js"></script>
     <meta charset="utf-8" />
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js" integrity="sha384-DkkWv9oJFWLIydBXXjkBWnG1/fuVhw8YPBq37uvvD6WSYRFRqr21eY5Dg9ZhmWdy" crossorigin="anonymous"></script>
-
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 
   </head>
   <body>
+
+      <style>
+        *{
+            font-family: 'Poppins', sans-serif;
+        }
+
+        @keyframes pulsat {
+          0%   {transform: scale(1);}
+          20% {transform: scale(0.9);}
+          50%   {transform: scale(1.1);}
+          100% {transform: scale(1);}
+        }
+
+        #info{
+          font-size: 20px;
+        }
+        #input{
+          font-size: 20px;
+          height: 30px;
+          width: 400px;
+        }
+        #form{
+          display: flex;
+          flex-direction: row;
+        }
+        #input:focus{
+          outline-color: rgb(66, 94, 94);
+          border-color: rgb(66, 94, 94);
+          background-color: rgb(212, 255, 255);
+        }
+        #send{
+          width: 60px;
+          height: 35px;
+          background-color: rgb(134, 219, 208);
+          color: rgb(255, 250, 250);
+
+          border-radius: 5px;
+
+          outline: none;
+          border: none;
+        }
+        .sendCont{
+          padding-left: 10px;
+          margin-left: 10px;
+        }
+        .buton{
+          width: 60px;
+          height: 35px;
+          background-color: rgb(134, 219, 208);
+          color: rgb(255, 250, 250);
+
+          border-radius: 5px;
+
+          outline: none;
+          border: none;
+        }
+        #choose{
+          width: 220px;
+        }
+      </style>
+
       <form id="form" action="">
-        <input id="input" autocomplete="off" /><button>Send</button>
+        <input id="input" autocomplete="off" />
+        <div id="sendCont">
+          <button id="send">TRY</button>
+        </div>
       </form>
       <div id="timer"></div>
       <pre id="info"></pre>
-      <button id="reset">RESET</button>
-      <button id="choose">CHOOSE A WORD</button>
+      <button id="reset" class="buton">RESET</button>
+      <button id="choose" class="buton">CHOOSE A WORD</button>
       <script src="sketch.js"></script>
+      <div id="users"></div>
 
-      <style>
-        #info{
-          font-size: 30px;
-        }
-      </style>
+      
   </body>
 </html>
