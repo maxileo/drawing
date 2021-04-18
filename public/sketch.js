@@ -36,6 +36,9 @@ function setup()
     socket.on('guessedIt', guessedIt);
     socket.on('users', users);
 
+    socket.on('howWasTheTry', tryCameBack);
+    socket.on('theWord', theWord);
+
     for (var i=1; i<=15; i++)
     {
         culori[i]=new culoare(30*i+i*5, 450, culorile[i*3-2], culorile[i*3-1], culorile[i*3]);
@@ -129,7 +132,9 @@ form.addEventListener('submit', function(e) {
     e.preventDefault();
     if (input.value && guessing==true) 
     {
-      if (input.value==cuvantToBeGuessed)
+        console.log("pressed try");
+        seeIfRight(input.value);
+      /*if (input.value==cuvantToBeGuessed)
       {
           info.textContent="You guessed correctly!!";
           console.log("da, ai ghicit");
@@ -139,11 +144,32 @@ form.addEventListener('submit', function(e) {
           timeIsDone=true;
       }
       else
-        console.log("mai incearca");
+        console.log("mai incearca");*/
       input.value = '';
     }
 });
 
+var howTheTryCameBack=false;
+function tryCameBack(data)
+{
+    howTheTryCameBack=data;
+}
+
+function seeIfRight(incercare)
+{
+    socket.emit('incerc', incercare);
+    setTimeout(function()
+    {   
+        if (howTheTryCameBack==true)
+        {
+            info.textContent="You guessed correctly!!";
+            socket.emit('guessed');
+            clearInterval(timerr);
+            document.getElementById('timer').textContent="";
+            timeIsDone=true;
+        }
+    }, 200);
+}
 
 function chooseWord()
 {
@@ -155,6 +181,19 @@ var cuvant;
 var cuvantToBeGuessed;
 var drawing=false;
 var guessing=false;
+
+function resetIt()
+{
+    butonPressed(reset);
+    resetBG();
+    socket.emit('reset', true);
+}
+function resetIt2()
+{
+    resetBG();
+}
+
+var drawPosition=false;
 
 function pickString(sir)
 {
@@ -171,18 +210,25 @@ function pickString(sir)
     socket.emit('guess', guessData);
 }
 
-function resetIt()
+function guess(data)
 {
-    butonPressed(reset);
-    resetBG();
-    socket.emit('reset', true);
+    drawing=false;
+    timer();
+    cuvantToBeGuessed=data.cuvant;
+    /*
+    var aux="";
+    for (var i=0; i<data.cuvant.length; i++)
+    {
+        if (data.cuvant[i]!=' ')
+            aux+=' '+'_';
+        else
+            aux+="  ";
+    }
+    */
+    //info.textContent=aux;
+    info.textContent=cuvantToBeGuessed;
+    guessing=true;
 }
-function resetIt2()
-{
-    resetBG();
-}
-
-var drawPosition=false;
 
 function guessedIt()
 {
@@ -192,6 +238,7 @@ function guessedIt()
     if (drawing==true)
     {
         info.textContent="Someone guessed your word";
+        sendWord(1);
         drawing=false;
     }
     else
@@ -199,23 +246,6 @@ function guessedIt()
         info.textContent="Someone guessed the word";
         guessing=false;
     }
-}
-
-function guess(data)
-{
-    drawing=false;
-    timer();
-    cuvantToBeGuessed=data.cuvant;
-    var aux="";
-    for (var i=0; i<data.cuvant.length; i++)
-    {
-        if (data.cuvant[i]!=' ')
-            aux+=' '+'_';
-        else
-            aux+="  ";
-    }
-    info.textContent=aux;
-    guessing=true;
 }
 
 function resized()
@@ -262,6 +292,7 @@ function timer()
 {
     timeIsDone=false;
     var minut=new Date().getTime()+60000+30000;
+    //var minut=new Date().getTime()+20000;
     timerr=setInterval(function(){
         var acum=new Date().getTime();
         var timptrecut=minut - acum;
@@ -276,13 +307,67 @@ function timer()
         else
         {
             console.log("ended timer");
-            document.getElementById('timer').textContent="Time ended";
+            if (guessing==true)
+            {
+                document.getElementById('timer').textContent="Time ended. ";
+                //document.getElementById('timer').textContent="Time ended, the word was "+cuvantToBeGuessed;
+            }
+            if (drawing==true)
+            {
+                document.getElementById('timer').textContent="You ran out of time..";
+                sendWord(2);
+            }
+
             clearInterval(timerr);
             drawing=false;
             guessing=false;
             timeIsDone=true;
         }
     });
+}
+
+function sendWord(care)
+{
+    data={
+        cuvant: cuvant,
+        care: care
+    };
+    socket.emit('thisWasTheWord', data);
+}
+function theWord(data)
+{
+    cuvantYouHadToGuess=data.cuvant;
+    if (data.care==2)
+    {
+        clearInterval(timerr);
+        drawing=false;
+        guessing=false;
+        timeIsDone=true;
+        document.getElementById('timer').textContent="Time ended, the word was "+cuvantYouHadToGuess;
+    }
+    if (data.care==1)
+    {
+        clearInterval(timerr);
+        drawing=false;
+        guessing=false;
+        timeIsDone=true;
+        document.getElementById('timer').textContent="Someone guessed the word, it was "+cuvantYouHadToGuess;
+    }
+    console.log(cuvantYouHadToGuess);
+}
+var cuvantYouHadToGuess="";
+
+function getWord()
+{
+    async function getData()
+    {
+        const response= await fetch('/word');
+        const data = await response.json();
+        console.log(data);
+
+        return data.cuvant;
+    }
+    return getData();
 }
 
 var timeIsDone=true;
