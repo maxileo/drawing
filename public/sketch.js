@@ -134,19 +134,10 @@ form.addEventListener('submit', function(e) {
     {
         console.log("pressed try");
         seeIfRight(input.value);
-      /*if (input.value==cuvantToBeGuessed)
-      {
-          info.textContent="You guessed correctly!!";
-          console.log("da, ai ghicit");
-          socket.emit('guessed');
-          clearInterval(timerr);
-          document.getElementById('timer').textContent="";
-          timeIsDone=true;
-      }
-      else
-        console.log("mai incearca");*/
-      input.value = '';
+        input.value = '';
     }
+    if (input.value)
+        input.value="";
 });
 
 var howTheTryCameBack=false;
@@ -184,9 +175,12 @@ var guessing=false;
 
 function resetIt()
 {
-    butonPressed(reset);
-    resetBG();
-    socket.emit('reset', true);
+    if (drawing==true)
+    {
+        butonPressed(reset);
+        resetBG();
+        socket.emit('reset', true);
+    }
 }
 function resetIt2()
 {
