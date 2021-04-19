@@ -69,9 +69,14 @@ function setup()
                 culoarePressed=true;
             }
         }
+
+        if (!mouseIsPressed)
+            first=false;
+
     }, 1);
 }
 
+var first=false;
 var culoarePressed=false;
 
 function draw()
@@ -209,17 +214,6 @@ function guess(data)
     drawing=false;
     timer();
     cuvantToBeGuessed=data.cuvant;
-    /*
-    var aux="";
-    for (var i=0; i<data.cuvant.length; i++)
-    {
-        if (data.cuvant[i]!=' ')
-            aux+=' '+'_';
-        else
-            aux+="  ";
-    }
-    */
-    //info.textContent=aux;
     info.textContent=cuvantToBeGuessed;
     guessing=true;
 }
@@ -248,7 +242,7 @@ function resized()
     background(culoareBG);
 }
 
-
+var lastX, lastY;
 function newDrawing(data) // cand iti deseneaza dupa altcineva
 {
     noStroke();
@@ -261,6 +255,16 @@ function mouseDragged() // cand desenezi tu
     {
         if (mouseX>0 && mouseX<width && mouseY>0 && mouseY<height-70)
         {
+            if (first==false)
+            {
+                lastX=mouseX;
+                lastY=mouseY;
+                first=true;
+            }
+            if (dist(mouseX, mouseY, lastX, lastY)>5)
+            {
+                interpolate(mouseX, mouseY, lastX, lastY);
+            }
             var data=
             {
                 x:mouseX,
@@ -275,7 +279,36 @@ function mouseDragged() // cand desenezi tu
             noStroke();
             fill(culoareActuala.x, culoareActuala.y, culoareActuala.z);
             circle(mouseX, mouseY, sizeBrush);
+
+            lastX=mouseX;
+            lastY=mouseY;
         }
+    }
+}
+function interpolate(xA, yA, xB, yB)
+{
+    var t=0;
+    var x, y;
+    while (t<=1)
+    {
+        t+=0.05;
+        x=abs((t-1)*xA)+t*xB;
+        y=abs((t-1)*yA)+t*yB;
+
+        var data=
+        {
+                x:x,
+                y:y,
+                r:culoareActuala.x,
+                g:culoareActuala.y,
+                b:culoareActuala.z,
+                size: sizeBrush
+        }
+        socket.emit('mouse', data);
+
+        noStroke();
+        fill(culoareActuala.x, culoareActuala.y, culoareActuala.z);
+        circle(x, y, sizeBrush);
     }
 }
 
