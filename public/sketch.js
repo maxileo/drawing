@@ -1,3 +1,5 @@
+
+
 var socket;
 
 const reset=document.getElementById('reset');
@@ -24,10 +26,13 @@ var culorile=[0, 242, 95, 73, 166, 126, 85, 250, 158, 82, 255, 252, 59, 172, 255
 var culoareActuala=new p5.Vector(255, 255, 255);
 
 var brushes=[];
+var butonulDeFill;
 function setup()
 {
     canvas=createCanvas(800, 500);
     background(culoareBG);
+
+    noSmooth();
 
     socket=io();
     socket.on('mouse', newDrawing);
@@ -38,17 +43,20 @@ function setup()
 
     socket.on('howWasTheTry', tryCameBack);
     socket.on('theWord', theWord);
+    socket.on('fillThisPlace', fillThisPlace);
 
     for (var i=1; i<=15; i++)
     {
-        culori[i]=new culoare(30*i+i*5, 450, culorile[i*3-2], culorile[i*3-1], culorile[i*3]);
+        culori[i]=new culoare(30*i+i*5-20, 450, culorile[i*3-2], culorile[i*3-1], culorile[i*3]);
         culori[i].draw();
     }
     for (var i=1; i<=4; i++)
     {
-        brushes[i]=new brush(35*(i+15)+(i+15)*5, 450, i*5, i*10);
+        brushes[i]=new brush(35*(i+15)+(i+30)*3, 450, i*5, i*10);
         brushes[i].draw();
     }
+    butonulDeFill=new butonFill(30*15+140, 450);
+    butonulDeFill.draw();
     setInterval(function(){
         if (!mouseIsPressed)
             culoarePressed=false;
@@ -69,11 +77,47 @@ function setup()
                 culoarePressed=true;
             }
         }
+        if (butonulDeFill.pressed()==true && culoarePressed==false)
+        {
+            culoarePressed=true;
+            setTimeout(() => {
+                urmamSaFill=true;
+            }, 400);
+        }
 
         if (!mouseIsPressed)
+        {
             first=false;
-
+            fillPressed=false;
+        }
+        if (mouseIsPressed && urmamSaFill==true && mouseY<430)
+        {
+            fillPressed=true;
+            urmamSaFill=false;
+            fillItBucket(mouseX, mouseY);
+            data={
+                x:mouseX,
+                y:mouseY,
+                r:culoareActuala.x,
+                g:culoareActuala.y,
+                b:culoareActuala.z
+            };
+            socket.emit('bucketFill', data);
+        }
     }, 1);
+}
+
+var urmamSaFill=false;
+var fillPressed=false;
+var fillBU=false;
+
+function keyReleased()
+{
+    fillBU=false;
+}
+function keyPressed()
+{
+    fillBU=true;
 }
 
 var first=false;
@@ -103,6 +147,30 @@ class culoare {
         rect(this.x, this.y, 30, 30, 5);
     }
 }
+
+class butonFill {
+    constructor(x, y)
+    {
+        this.x=x;
+        this.y=y;
+    }
+    pressed()
+    {
+        if (mouseIsPressed && mouseX>this.x && mouseX<this.x+30 && mouseY>this.y && mouseY<this.y+30)
+            return true;
+        return false;
+    }
+    draw()
+    {
+        stroke(0);
+        fill(255, 255, 255);
+        rect(this.x, this.y, 30, 30, 5);
+        textSize(20);
+        fill(20);
+        text("F", this.x+8, this.y+23);
+    }
+}
+
 class brush {
     constructor(x, y, circleSize, brushSize) {
       this.x = x;
@@ -243,12 +311,29 @@ function resized()
 }
 
 var lastX, lastY;
+
+function fillIt(x, y, r, g, b)
+{
+    fill(r, g, b);
+}
+
 function newDrawing(data) // cand iti deseneaza dupa altcineva
 {
     noStroke();
     fill(data.r, data.g, data.b);
     circle(data.x, data.y, data.size);
+    //rect(data.x-data.size/2, data.y-data.size/2, data.size, data.size);
 }
+
+function fillThisPlace(data)
+{
+    culoareActuala.x = data.r;
+    culoareActuala.y = data.g;
+    culoareActuala.z = data.b;
+    console.log(culoareActuala);
+    fillItBucket(data.x, data.y);
+}
+
 function mouseDragged() // cand desenezi tu 
 {
     if (drawing==true)
@@ -279,6 +364,7 @@ function mouseDragged() // cand desenezi tu
             noStroke();
             fill(culoareActuala.x, culoareActuala.y, culoareActuala.z);
             circle(mouseX, mouseY, sizeBrush);
+            //rect(mouseX-sizeBrush/2, mouseY-sizeBrush/2, sizeBrush, sizeBrush);
 
             lastX=mouseX;
             lastY=mouseY;
@@ -309,8 +395,93 @@ function interpolate(xA, yA, xB, yB)
         noStroke();
         fill(culoareActuala.x, culoareActuala.y, culoareActuala.z);
         circle(x, y, sizeBrush);
+        //rect (x-sizeBrush/2, y-sizeBrush/2, sizeBrush, sizeBrush);
     }
 }
+  
+  class coada
+    {
+      constructor(a, b)
+      {
+        this.lin=a;
+        this.col=b;
+      }
+    }
+  
+  var rr, gg, bb;
+  function fillItBucket(a, b)
+  {
+    loadPixels();
+    const d=2;
+    
+    var A=[];
+    for (var ii=0; ii<width*height; ii++)
+      A[ii]=0;
+    
+    
+    var prim, ultim, k;
+    var pi, pj, vi, vj;
+    var vecinlin=[-1, 0, 1, 0];
+    var vecincol=[0, 1, 0, -1];
+      var C=[];
+      var indd=ind(a, b, d);
+      const [rr, gg, bb]=[pixels[indd], pixels[indd+1], pixels[indd+2]];
+      prim=ultim=0;
+      C[0]=new coada(a, b);
+      A[b*width+a]=1;
+      pixels[indd]=110;
+      pixels[indd+1]=152;
+      pixels[indd+2]=219;
+      while (prim<=ultim)
+      {
+          pi=C[prim].lin; pj=C[prim].col;
+          prim++;
+          for (k=0; k<=3; k++)
+          {
+              vi=pi+vecinlin[k]; vj=pj+vecincol[k];
+              if (A[vj*width+vi]==0 && vj<420 && vi<800)
+              {
+              if (egalPX(vi, vj, rr, gg, bb, d)==true)
+              {
+                  let i=ind(vi, vj, d);
+                  pixels[i]=culoareActuala.x;
+                  pixels[i+1]=culoareActuala.y;
+                  pixels[i+2]=culoareActuala.z;
+                
+                  A[vj*width+vi]=1;
+                  
+                  ultim++;
+                  C[ultim]=new coada(vi, vj);
+              }
+              }
+          }
+      }
+    
+    updatePixels();
+    
+    console.log(a, b);
+  }
+  var nr=0;
+  function egalPX(a, b, rr, gg, bb, d)
+  {
+    var ind1=ind(a, b, d);
+    var detail=15;
+    if (( abs(pixels[ind1]-rr)<detail && 
+        abs(pixels[ind1]-rr)<detail && 
+        abs(pixels[ind1]-rr)<detail
+    ) 
+    )
+      {
+        return true;
+      }
+    return false;
+  }
+  
+  function ind(a, b, d)
+  {
+    return 4*(b*width+a);
+  }
+
 
 
 // timer
@@ -419,4 +590,5 @@ function resetBG()
     {
         brushes[i].draw();
     }
+    butonulDeFill.draw();
 }

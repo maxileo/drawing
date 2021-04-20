@@ -27,6 +27,13 @@ function newConnection(socket)
     socket.broadcast.emit("users", nrUsers);
     socket.emit("users", nrUsers);
 
+    socket.on('bucketFill', bucket);
+    function bucket(data)
+    {
+        socket.broadcast.emit('fillThisPlace', data);
+        console.log(data);
+    }
+
     socket.on('mouse', mouseMsg);
     socket.on('reset', resetIt);
     socket.on('guess', guess);
