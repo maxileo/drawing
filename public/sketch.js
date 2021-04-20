@@ -467,8 +467,8 @@ function interpolate(xA, yA, xB, yB)
     var ind1=ind(a, b, d);
     var detail=15;
     if (( abs(pixels[ind1]-rr)<detail && 
-        abs(pixels[ind1]-gg)<detail && 
-        abs(pixels[ind1]-bb)<detail
+        abs(pixels[ind1+1]-gg)<detail && 
+        abs(pixels[ind1+2]-bb)<detail
     ) 
     )
       {
