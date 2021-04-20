@@ -96,8 +96,8 @@ function setup()
             urmamSaFill=false;
             fillItBucket(mouseX, mouseY);
             data={
-                x:mouseX,
-                y:mouseY,
+                x:parseInt(mouseX),
+                y:parseInt(mouseY),
                 r:culoareActuala.x,
                 g:culoareActuala.y,
                 b:culoareActuala.z
@@ -331,7 +331,7 @@ function fillThisPlace(data)
     culoareActuala.y = data.g;
     culoareActuala.z = data.b;
     console.log(culoareActuala);
-    fillItBucket(data.x, data.y);
+    fillItBucket(parseInt(data.x), parseInt(data.y));
 }
 
 function mouseDragged() // cand desenezi tu 
