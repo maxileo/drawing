@@ -30,6 +30,7 @@ var butonulDeFill;
 function setup()
 {
     canvas=createCanvas(800, 500);
+    pixelDensity(1);
     background(culoareBG);
 
     noSmooth();
