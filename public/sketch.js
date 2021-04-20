@@ -94,7 +94,7 @@ function setup()
         {
             fillPressed=true;
             urmamSaFill=false;
-            fillItBucket(mouseX, mouseY);
+            fillItBucket(parseInt(mouseX), parseInt(mouseY));
             data={
                 x:parseInt(mouseX),
                 y:parseInt(mouseY),
@@ -467,8 +467,8 @@ function interpolate(xA, yA, xB, yB)
     var ind1=ind(a, b, d);
     var detail=15;
     if (( abs(pixels[ind1]-rr)<detail && 
-        abs(pixels[ind1]-rr)<detail && 
-        abs(pixels[ind1]-rr)<detail
+        abs(pixels[ind1]-gg)<detail && 
+        abs(pixels[ind1]-bb)<detail
     ) 
     )
       {
